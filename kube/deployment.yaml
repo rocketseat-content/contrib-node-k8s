@@ -1,0 +1,52 @@
+# Cluster: Toda a infra (1 máquina)
+
+# Nós: Uma VM onde executará nossa aplição (no mínimo 3)
+# Pods: Grupos de containers que podem ser executados (app, db, ...)
+# Deployments: Configura a maneira que os pods se comportam
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: basic-example
+  labels:
+    app: basic-example
+    env: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basic-example
+  template:
+    metadata:
+      labels:
+        app: basic-example
+        env: development
+    spec:
+      containers:
+        - image: diego3g/basic-example:latest
+          name: basic-example
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 200m
+              memory: 256Mi
+          ports:
+            - containerPort: 3000
+              name: http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: basic-example
+  labels:
+    app: basic-example
+    env: development
+spec:
+  selector:
+    app: basic-example
+  ports:
+    - name: service-http
+      port: 80
+      targetPort: http
